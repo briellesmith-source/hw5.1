@@ -1,0 +1,105 @@
+---
+title: "hw5.1"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)      # Loads dplyr for data manipulation tasks like select, filter, mutate
+library(readxl)     # Loads readxl to read Excel (.xlsx) files into R
+library(ggplot2)    # Loads ggplot2 for creating plots and visualizations
+
+fsi_files <- list.files(pattern = "fsi-.*\\.xlsx$", full.names = TRUE) # Lists all files in the working directory that match "fsi-year.xlsx" and return full paths
+
+fsi_list <- lapply(fsi_files, function(file) {
+  df <- read_excel(file) # Reads each Excel file into a dataframe
+  names(df) <- tolower(gsub(" ", "_", names(df)))  # Cleans column names (lowercase and replace spaces with underscores)
+  df # Returns the cleaned dataframe to the list
+})
+
+```
+
+```{r}
+fsi_list <- lapply(fsi_files, function(file) {
+  df <- read_excel(file)  # reads Excel file
+  names(df) <- tolower(gsub(" ", "_", names(df)))  # cleans column names to lowercase with underscores
+  if("year" %in% names(df)) df$year <- as.integer(df$year)  # converts year to integer
+  df  # Returns the cleaned dataframe
+})
+
+fsi_merged <- bind_rows(fsi_list) # Combines all dataframes in the list into one dataframe, stacking rows vertically
+
+names(fsi_merged) <- tolower(gsub("[^0-9a-zA-Z]+", "_", names(fsi_merged)))
+names(fsi_merged) # Further cleans all column names: lowercase and replace non-alphanumeric characters with underscores
+
+fsi_final <- fsi_merged %>% # Keeps only the relevant columns in the correct order for the final dataset
+  select(
+    country, year, rank, total,
+    c1_security_apparatus, c2_factionalized_elites, c3_group_grievance,
+    e1_economy, e2_economic_inequality, e3_human_flight_and_brain_drain,
+    p1_state_legitimacy, p2_public_services, p3_human_rights,
+    s1_demographic_pressures, s2_refugees_and_idps, x1_external_intervention
+  )
+
+fsi_merged <- fsi_merged %>% # Ensures year and rank columns are stored as integers
+  mutate(
+    year = as.integer(year),
+    rank = as.integer(rank)
+  )
+
+write.csv(fsi_final, "fsi_merged.csv", row.names = FALSE) # Saves merged and cleaned file
+
+file.exists("fsi_merged.csv") # Verifies the file exists
+
+```
+
+```{r}
+ggplot(fsi_merged, aes(x = factor(year), y = total)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Total FSI Scores per Year",
+       x = "Year",
+       y = "Total FSI Score") +
+  theme_minimal() # Creates a boxplot of total FSI scores for each year to visualize the distribution over time
+
+fsi_hist <- fsi_merged %>% filter(year %in% c(2013, 2023)) # Subsets the dataset to include only the years 2013 and 2023
+
+fsi_hist_long <- fsi_hist %>%
+  pivot_longer(cols = c(c1_security_apparatus, c2_factionalized_elites, c3_group_grievance),
+               names_to = "variable",
+               values_to = "value") # Reshapes the C1-C3 columns from wide to long format for faceted plotting
+
+ggplot(fsi_hist_long, aes(x = value)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "black") +
+  facet_grid(variable ~ year) +
+  labs(title = "Histograms of C1-C3 Variables for 2013 and 2023",
+       x = "Score",
+       y = "Count") +
+  theme_minimal() # Plots histograms of the C1-C3 variables for 2013 and 2023 using facets to compare distributions
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
