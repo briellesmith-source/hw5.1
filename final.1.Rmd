@@ -7,9 +7,15 @@ output: html_notebook
 library(dplyr)      # Loads dplyr for data manipulation tasks like select, filter, mutate
 library(readxl)     # Loads readxl to read Excel (.xlsx) files into R
 library(ggplot2)    # Loads ggplot2 for creating plots and visualizations
+```
 
+
+```{r}
 fsi_files <- list.files(pattern = "fsi-.*\\.xlsx$", full.names = TRUE) # Lists all files in the working directory that match "fsi-year.xlsx" and return full paths
+```
 
+
+```{r}
 fsi_list <- lapply(fsi_files, function(file) {
   df <- read_excel(file) # Reads each Excel file into a dataframe
   names(df) <- tolower(gsub(" ", "_", names(df)))  # Cleans column names (lowercase and replace spaces with underscores)
@@ -25,12 +31,18 @@ fsi_list <- lapply(fsi_files, function(file) {
   if("year" %in% names(df)) df$year <- as.integer(df$year)  # converts year to integer
   df  # Returns the cleaned dataframe
 })
+```
 
+
+```{r}
 fsi_merged <- bind_rows(fsi_list) # Combines all dataframes in the list into one dataframe, stacking rows vertically
 
 names(fsi_merged) <- tolower(gsub("[^0-9a-zA-Z]+", "_", names(fsi_merged)))
 names(fsi_merged) # Further cleans all column names: lowercase and replace non-alphanumeric characters with underscores
+```
 
+
+```{r}
 fsi_final <- fsi_merged %>% # Keeps only the relevant columns in the correct order for the final dataset
   select(
     country, year, rank, total,
@@ -39,13 +51,19 @@ fsi_final <- fsi_merged %>% # Keeps only the relevant columns in the correct ord
     p1_state_legitimacy, p2_public_services, p3_human_rights,
     s1_demographic_pressures, s2_refugees_and_idps, x1_external_intervention
   )
+```
 
+
+```{r}
 fsi_merged <- fsi_merged %>% # Ensures year and rank columns are stored as integers
   mutate(
     year = as.integer(year),
     rank = as.integer(rank)
   )
+```
 
+
+```{r}
 write.csv(fsi_final, "fsi_merged.csv", row.names = FALSE) # Saves merged and cleaned file
 
 file.exists("fsi_merged.csv") # Verifies the file exists
@@ -59,14 +77,20 @@ ggplot(fsi_merged, aes(x = factor(year), y = total)) +
        x = "Year",
        y = "Total FSI Score") +
   theme_minimal() # Creates a boxplot of total FSI scores for each year to visualize the distribution over time
+```
 
+
+```{r}
 fsi_hist <- fsi_merged %>% filter(year %in% c(2013, 2023)) # Subsets the dataset to include only the years 2013 and 2023
 
 fsi_hist_long <- fsi_hist %>%
   pivot_longer(cols = c(c1_security_apparatus, c2_factionalized_elites, c3_group_grievance),
                names_to = "variable",
                values_to = "value") # Reshapes the C1-C3 columns from wide to long format for faceted plotting
+```
 
+
+```{r}
 ggplot(fsi_hist_long, aes(x = value)) +
   geom_histogram(bins = 20, fill = "steelblue", color = "black") +
   facet_grid(variable ~ year) +
