@@ -1,5 +1,5 @@
 ---
-title: "hw5.1"
+title: "Final HW Exercise 1"
 output: html_notebook
 ---
 
@@ -16,11 +16,8 @@ fsi_files <- list.files(pattern = "fsi-.*\\.xlsx$", full.names = TRUE) # Lists a
 
 
 ```{r}
-fsi_list <- lapply(fsi_files, function(file) {
-  df <- read_excel(file) # Reads each Excel file into a dataframe
-  names(df) <- tolower(gsub(" ", "_", names(df)))  # Cleans column names (lowercase and replace spaces with underscores)
-  df # Returns the cleaned dataframe to the list
-})
+fsi_list <- c( # reads the excel files from their github URLs
+  "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2006.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2007.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2008.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2009.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2010.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2011.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2012.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2013.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2014.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2015.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2016.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2018.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2019.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2020.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2021.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2022.xlsx", "https://github.com/briellesmith-source/hw5.1/blob/main/fsi-2023.xlsx" )
 
 ```
 
